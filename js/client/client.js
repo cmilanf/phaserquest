@@ -7,7 +7,10 @@ var Client = {
     // and instead are queued in this array ; they will be processed once the client is initialized and Client.emptyQueue() has been called
     initEventName: 'init', // name of the event that triggers the call to initWorld() and the initialization of the game
     storageNameKey: 'playerName', // key in localStorage of the player name
-    storageIDKey: 'playerID' // key in localStorage of player ID
+    storageIDKey: 'playerID', // key in localStorage of player ID
+    // BEGIN === cmilanf's GenAI mod
+    isBot: false // Whatever this instance of the client is a bot or not
+    // END === cmilanf's GenAI mod
 };
 Client.socket = io.connect();
 
@@ -131,6 +134,25 @@ Client.socket.on('wait',function(){
 Client.socket.on('chat',function(data){
     // chat is sent by the server when another nearby player has said something
     Game.playerSays(data.id,data.txt);
+    // BEGIN === cmilanf's GenAI mod
+    if(Client.isBot) {
+        console.log("This client is a bot");
+        const response = fetch('https://apigateway/rathena/ana/invoke', {
+            method: 'POST',
+            body: {
+                'message': data.txt
+            },
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const responseJson = response.json();
+        Client.sendChat(responseJson.message);
+    } else {
+        console.log("This client is a human");
+        Client.sendChat("I am a human");
+    }
+    // END === cmilanf's GenAI mod
 });
 
 Client.sendPath = function(path,action,finalOrientation){

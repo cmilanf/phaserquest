@@ -155,6 +155,9 @@ Home.makeHomeScroll = function(){
     player.addChild(game.add.sprite(0,5, 'atlas1','shadow'));
     player.anchor.set(0.25,0.35);
     Home.button = Home.makeButton(Home.scroll,buttonY,'play',Home.startGame);
+    // BEGIN === cmilanf's GenAI mod
+    Home.isBot = Home.makeScrollLink(Home.scroll,'Play as a bot: ' + Client.isBot,Home.makeIsBot, 0, 370);
+    // END === cmilanf's GenAI mod
     if(Game.isNewPlayer) Home.disableButton();
     player.x = Home.button.x - 18;
 };
@@ -181,8 +184,9 @@ Home.makeButton = function(scroll,buttonY,frame,callback){
     return button;
 };
 
-Home.makeScrollLink = function(scroll,text,callback){
-    var link = scroll.addChild(game.add.text(0,310,text,{
+// BEGIN === cmilanf's GenAI mod
+Home.makeScrollLink = function(scroll,text,callback,x=0,y=310){
+    var link = scroll.addChild(game.add.text(x,y,text,{
         font: '16px pixel',
         fill: "#fff",
         stroke: "#000",
@@ -198,8 +202,9 @@ Home.makeScrollLink = function(scroll,text,callback){
         txt.addColor('#fff',0);
     }, this);
     link.events.onInputDown.add(callback, this);
+    return link;
 };
-
+// END === cmilanf's GenAI mod
 
 Home.displayResetScroll = function(){
     if(!Home.resetScroll) Home.makeResetScroll();
@@ -221,6 +226,19 @@ Home.makeResetScroll = function(){
     txt.x = Home.resetScroll.width/2;
     Home.makeScrollLink(Home.resetScroll,'Cancel',Home.displayHomeScroll);
 };
+
+// BEGIN === cmilanf's GenAI mod
+Home.makeIsBot = function(){
+    if (Client.isBot) {
+        Client.isBot = false;
+        console.log("Marked player as human")
+    } else {
+        Client.isBot = true;
+        console.log("Marked player as bot")
+    }
+    Home.isBot.text = 'Play as a bot: ' + Client.isBot;
+};
+// END === cmilanf's GenAI mod
 
 Home.deletePlayer = function(){
     Client.deletePlayer();
